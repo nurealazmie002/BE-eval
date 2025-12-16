@@ -1,50 +1,14 @@
 import { Router } from 'express';
 import { MemberController } from '../controllers/member';
-import {
-  createMemberValidation,
-  updateMemberValidation,
-  getMemberByIdValidation,
-  searchMemberValidation,
-} from '../validations/member';
-import { validate } from '../middlewares/validate';
-import { asyncHandler } from '../utils/async.handler';
+import { asyncHandler } from '../utils/async.handler'; 
 
 const router = Router();
 const memberController = new MemberController();
 
-router.get(
-  '/',
-  searchMemberValidation,
-  validate,
-  asyncHandler(memberController.getAllMembers.bind(memberController))
-);
-
-router.get(
-  '/:id',
-  getMemberByIdValidation,
-  validate,
-  asyncHandler(memberController.getMemberById.bind(memberController))
-);
-
-router.post(
-  '/',
-  createMemberValidation,
-  validate,
-  asyncHandler(memberController.createMember.bind(memberController))
-);
-
-router.put(
-  '/:id',
-  updateMemberValidation,
-  validate,
-  asyncHandler(memberController.updateMember.bind(memberController))
-);
-
-router.delete(
-  '/:id',
-  getMemberByIdValidation,
-  validate,
-  asyncHandler(memberController.deleteMember.bind(memberController))
-);
+router.get('/', asyncHandler(memberController.getAllMembers));
+router.get('/:id', asyncHandler(memberController.getMemberById));
+router.post('/', asyncHandler(memberController.createMember));
+router.put('/:id', asyncHandler(memberController.updateMember));
+router.delete('/:id', asyncHandler(memberController.deleteMember));
 
 export default router;

@@ -1,0 +1,17 @@
+model Book {
+  id              String    @id @default(uuid())
+  title           String
+  author          String
+  publisher       String
+  publicationYear Int
+  stock           Int       @default(0)
+
+  categoryId      String
+  category        Category  @relation(fields: [categoryId], references: [id])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@map("books")
+}

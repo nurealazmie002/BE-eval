@@ -1,113 +1,81 @@
-import { v4 as uuidv4 } from 'uuid';
-import { Book, CreateBookDTO, UpdateBookDTO, BookSearchParams } from '../models/book';
-
-let books: Book[] = [
-  {
-    id: uuidv4(),
-    judul: 'Harry Potter dan Batu Bertuah',
-    penulis: 'J.K. Rowling',
-    penerbit: 'Gramedia',
-    tahun_terbit: 1997,
-    kategori: 'fiksi',
-    stok: 5,
-  },
-  {
-    id: uuidv4(),
-    judul: 'Laskar Pelangi',
-    penulis: 'Andrea Hirata',
-    penerbit: 'Bentang Pustaka',
-    tahun_terbit: 2005,
-    kategori: 'fiksi',
-    stok: 3,
-  },
-  {
-    id: uuidv4(),
-    judul: 'Sapiens',
-    penulis: 'Yuval Noah Harari',
-    penerbit: 'Pustaka Alvabet',
-    tahun_terbit: 2011,
-    kategori: 'non-fiksi',
-    stok: 7,
-  },
-];
-
+import prisma from "../prisma"; 
 export class BookService {
-  getAllBooks(params: BookSearchParams) {
-    let filteredBooks = [...books];
+  async getAllBooks(params: any) {
+    const whereClause: any = {
+      deletedAt: null,
+    };
 
     if (params.search) {
-      const searchLower = params.search.toLowerCase();
-      filteredBooks = filteredBooks.filter(
-        (book) =>
-          book.judul.toLowerCase().includes(searchLower) ||
-          book.penulis.toLowerCase().includes(searchLower)
-      );
+      whereClause.OR = [
+        { title: { contains: params.search, mode: 'insensitive' } },
+        { author: { contains: params.search, mode: 'insensitive' } },
+      ];
     }
 
     if (params.kategori) {
-      filteredBooks = filteredBooks.filter((book) => book.kategori === params.kategori);
+      whereClause.category = {
+        name: { equals: params.kategori, mode: 'insensitive' }
+      };
     }
 
-    if (params.min_tahun) {
-      filteredBooks = filteredBooks.filter((book) => book.tahun_terbit >= params.min_tahun!);
+    if (params.min_tahun || params.max_tahun) {
+      whereClause.publicationYear = {};
+      if (params.min_tahun) whereClause.publicationYear.gte = Number(params.min_tahun);
+      if (params.max_tahun) whereClause.publicationYear.lte = Number(params.max_tahun);
     }
 
-    if (params.max_tahun) {
-      filteredBooks = filteredBooks.filter((book) => book.tahun_terbit <= params.max_tahun!);
-    }
+    const books = await prisma.book.findMany({
+      where: whereClause,
+      include: { category: true },
+    });
 
-    return {
-      books: filteredBooks,
-      total: filteredBooks.length,
-      filters: {
-        search: params.search,
-        kategori: params.kategori,
-        min_tahun: params.min_tahun,
-        max_tahun: params.max_tahun,
-      },
-    };
+    return { books, total: books.length, filters: params };
   }
 
-  getBookById(id: string) {
-    const book = books.find((b) => b.id === id);
-    if (!book) {
-      throw { statusCode: 404, message: 'Buku tidak ditemukan' };
-    }
+  async getBookById(id: string) {
+    const book = await prisma.book.findFirst({
+      where: { id, deletedAt: null },
+      include: { category: true },
+    });
+    if (!book) throw { statusCode: 404, message: 'Buku tidak ditemukan' };
     return book;
   }
 
-  createBook(data: CreateBookDTO) {
-    const newBook: Book = {
-      id: uuidv4(),
-      ...data,
-    };
+  async createBook(data: any) {
+    if (!data.categoryId) throw { statusCode: 400, message: "categoryId wajib diisi" };
 
-    books.push(newBook);
-    return newBook;
+    return await prisma.book.create({
+      data: {
+        title: data.judul,
+        author: data.penulis,
+        publisher: data.penerbit,
+        publicationYear: data.tahun_terbit,
+        stock: data.stok,
+        categoryId: data.categoryId,
+      },
+    });
   }
 
-  updateBook(id: string, data: UpdateBookDTO) {
-    const index = books.findIndex((b) => b.id === id);
-    if (index === -1) {
-      throw { statusCode: 404, message: 'Buku tidak ditemukan' };
-    }
-
-    books[index] = {
-      ...books[index],
-      ...data,
-    };
-
-    return books[index];
+  async updateBook(id: string, data: any) {
+    await this.getBookById(id);
+    return await prisma.book.update({
+      where: { id },
+      data: {
+        title: data.judul,
+        author: data.penulis,
+        publisher: data.penerbit,
+        publicationYear: data.tahun_terbit,
+        stock: data.stok,
+        categoryId: data.categoryId,
+      },
+    });
   }
 
-  deleteBook(id: string) {
-    const index = books.findIndex((b) => b.id === id);
-    if (index === -1) {
-      throw { statusCode: 404, message: 'Buku tidak ditemukan' };
-    }
-
-    const deletedBook = books[index];
-    books.splice(index, 1);
-    return deletedBook;
+  async deleteBook(id: string) {
+    await this.getBookById(id);
+    return await prisma.book.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
   }
 }

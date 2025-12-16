@@ -1,30 +1,27 @@
-import express, { Application, Request, Response } from 'express';
-import routes from './routes'; 
+import express from 'express';
+import dotenv from 'dotenv';
+import mainRouter from './routes'; 
+import { errorHandler } from './middlewares/errorHandler'; 
+import prisma from './prisma';
 
-import { requestTimerMiddleware } from './middlewares/requestTimer';
-import { requestIdMiddleware } from './middlewares/requestId';
-import { errorHandler } from './middlewares/errorHandler';
+dotenv.config(); 
 
-const app: Application = express();
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(requestIdMiddleware);
-app.use(requestTimerMiddleware);
+app.use(express.json()); 
 
-app.get('/', (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    message: 'Selamat datang di Perpustakaan API - Final Minggu 1',
-    version: '1.0.0',
-    endpoints: {
-      books: '/api/books',
-      members: '/api/members',
-    },
-  });
+app.use('/api', mainRouter);
+
+app.use(errorHandler); 
+
+app.listen(PORT, async () => {
+  try {
+    await prisma.$connect(); 
+    console.log('✅ Database connected successfully');
+    console.log(`🚀 Server is running on port ${PORT}`);
+  } catch (error) {
+    console.error('❌ Database connection failed:', error);
+    process.exit(1); 
+  }
 });
-
-app.use('/api', routes);  
-
-
-export default app;

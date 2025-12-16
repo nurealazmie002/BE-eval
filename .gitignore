@@ -1,1 +1,4 @@
 /node_modules
+/src/prisma/migrations
+/src/generated
+dist

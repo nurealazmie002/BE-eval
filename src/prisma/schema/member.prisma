@@ -1,0 +1,19 @@
+model Member {
+  id          String       @id @default(uuid())
+  name        String
+  email       String       @unique
+  phone       String
+  address     String
+  status      MemberStatus @default(ACTIVE)
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  @@map("members")
+}
+
+enum MemberStatus {
+  ACTIVE
+  INACTIVE
+}
