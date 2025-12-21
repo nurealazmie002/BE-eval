@@ -45,7 +45,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Naufal Hibatulah\",\n  \"email\": \"admin@perpustakaan.com\",\n  \"password\": \"admin123\",\n  \"role\": \"ADMIN\"\n}"
+              "raw": "{\n  \"name\": \"Admin Perpustakaan\",\n  \"email\": \"admin@perpustakaan.com\",\n  \"password\": \"admin123\",\n  \"role\": \"ADMIN\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
@@ -238,13 +238,13 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "judul", "value": "Harry Potter", "type": "text" },
+                { "key": "judul", "value": "Harry Potter and the Sorcerer's Stone", "type": "text" },
                 { "key": "penulis", "value": "J.K. Rowling", "type": "text" },
-                { "key": "penerbit", "value": "Gramedia", "type": "text" },
+                { "key": "penerbit", "value": "Gramedia Pustaka Utama", "type": "text" },
                 { "key": "tahun_terbit", "value": "1997", "type": "text" },
                 { "key": "stok", "value": "10", "type": "text" },
-                { "key": "categoryId", "value": "", "type": "text" },
-                { "key": "cover", "type": "file", "src": "" }
+                { "key": "categoryId", "value": "", "type": "text", "description": "UUID dari category" },
+                { "key": "cover", "type": "file", "src": "", "description": "File gambar cover (opsional)" }
               ]
             },
             "url": {
@@ -309,9 +309,13 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/members",
+              "raw": "{{baseUrl}}/members?search=&status=",
               "host": ["{{baseUrl}}"],
-              "path": ["members"]
+              "path": ["members"],
+              "query": [
+                { "key": "search", "value": "", "description": "Search by name or email" },
+                { "key": "status", "value": "", "description": "Filter by status: ACTIVE, INACTIVE, SUSPENDED" }
+              ]
             }
           }
         },
@@ -329,12 +333,113 @@
               "variable": [{ "key": "id", "value": "" }]
             }
           }
+        },
+        {
+          "name": "Create Member (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Member Baru\",\n  \"email\": \"member@perpustakaan.com\",\n  \"password\": \"member123\",\n  \"telepon\": \"08123456789\",\n  \"alamat\": \"Jl. Contoh No. 123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["members"]
+            }
+          }
+        },
+        {
+          "name": "Update Member (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Member Updated\",\n  \"email\": \"member.updated@perpustakaan.com\",\n  \"telepon\": \"08987654321\",\n  \"alamat\": \"Jl. Baru No. 456\",\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/members/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["members", ":id"],
+              "variable": [{ "key": "id", "value": "" }]
+            }
+          }
+        },
+        {
+          "name": "Delete Member (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/members/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["members", ":id"],
+              "variable": [{ "key": "id", "value": "" }]
+            }
+          }
         }
       ]
     },
     {
       "name": "Borrowing",
       "item": [
+        {
+          "name": "Get My Borrowings (Member)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/borrows/my-borrowings",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", "my-borrowings"]
+            }
+          }
+        },
+        {
+          "name": "Get All Borrowings (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/borrows?search=&status=",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows"],
+              "query": [
+                { "key": "search", "value": "" },
+                { "key": "status", "value": "", "description": "Filter: BORROWED, RETURNED, OVERDUE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Borrow Record by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/borrows/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", ":id"],
+              "variable": [{ "key": "id", "value": "" }]
+            }
+          }
+        },
         {
           "name": "Borrow Books (Member)",
           "request": {
@@ -348,23 +453,9 @@
               "raw": "{\n  \"dueDate\": \"2025-01-15\",\n  \"items\": [\n    { \"bookId\": \"book-uuid-1\", \"quantity\": 1 },\n    { \"bookId\": \"book-uuid-2\", \"quantity\": 1 }\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/borrow",
+              "raw": "{{baseUrl}}/borrows",
               "host": ["{{baseUrl}}"],
-              "path": ["borrow"]
-            }
-          }
-        },
-        {
-          "name": "Get My Borrowings (Member)",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/borrow/my-borrowings",
-              "host": ["{{baseUrl}}"],
-              "path": ["borrow", "my-borrowings"]
+              "path": ["borrows"]
             }
           }
         },
@@ -376,39 +467,10 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/borrow/:id/return",
+              "raw": "{{baseUrl}}/borrows/:id/return",
               "host": ["{{baseUrl}}"],
-              "path": ["borrow", ":id", "return"],
-              "variable": [{ "key": "id", "value": "" }]
-            }
-          }
-        },
-        {
-          "name": "Get All Borrowings (Admin)",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/borrow",
-              "host": ["{{baseUrl}}"],
-              "path": ["borrow"]
-            }
-          }
-        },
-        {
-          "name": "Get Borrow Record by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/borrow/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["borrow", ":id"],
-              "variable": [{ "key": "id", "value": "" }]
+              "path": ["borrows", ":id", "return"],
+              "variable": [{ "key": "id", "value": "", "description": "ID dari borrow record" }]
             }
           }
         },
@@ -420,9 +482,9 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/borrow/:id",
+              "raw": "{{baseUrl}}/borrows/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["borrow", ":id"],
+              "path": ["borrows", ":id"],
               "variable": [{ "key": "id", "value": "" }]
             }
           }
