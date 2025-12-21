@@ -5,10 +5,12 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated"
+  provider        = "prisma-client"
+  output          = "../generated"
 }
 
 datasource db {
   provider = "postgresql"
+  // Uses connection string from environment variable
+  // url      = env("DATABASE_URL")
 }

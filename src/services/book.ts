@@ -1,4 +1,7 @@
-import prisma from "../prisma"; 
+import { BookRepository } from "../repositories/book.repository";
+
+const bookRepository = new BookRepository();
+
 export class BookService {
   async getAllBooks(params: any) {
     const whereClause: any = {
@@ -24,19 +27,50 @@ export class BookService {
       if (params.max_tahun) whereClause.publicationYear.lte = Number(params.max_tahun);
     }
 
-    const books = await prisma.book.findMany({
+    const page = Math.max(1, Number(params.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(params.limit) || 10));
+    const skip = (page - 1) * limit;
+
+    const allowedSortFields = ['title', 'author', 'publicationYear', 'stock', 'createdAt'];
+    const sortBy = allowedSortFields.includes(params.sortBy) ? params.sortBy : 'createdAt';
+    const sortOrder = params.sortOrder === 'asc' ? 'asc' : 'desc';
+
+    const total = await bookRepository.count(whereClause);
+
+    const books = await bookRepository.findMany({
       where: whereClause,
       include: { category: true },
+      skip,
+      take: limit,
+      orderBy: { [sortBy]: sortOrder },
     });
 
-    return { books, total: books.length, filters: params };
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      books,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+      filters: {
+        search: params.search || null,
+        kategori: params.kategori || null,
+        sortBy,
+        sortOrder,
+      },
+    };
   }
 
   async getBookById(id: string) {
-    const book = await prisma.book.findFirst({
-      where: { id, deletedAt: null },
-      include: { category: true },
-    });
+    const book = await bookRepository.findFirst(
+      { id, deletedAt: null },
+      { category: true }
+    );
     if (!book) throw { statusCode: 404, message: 'Buku tidak ditemukan' };
     return book;
   }
@@ -44,38 +78,32 @@ export class BookService {
   async createBook(data: any) {
     if (!data.categoryId) throw { statusCode: 400, message: "categoryId wajib diisi" };
 
-    return await prisma.book.create({
-      data: {
-        title: data.judul,
-        author: data.penulis,
-        publisher: data.penerbit,
-        publicationYear: data.tahun_terbit,
-        stock: data.stok,
-        categoryId: data.categoryId,
-      },
+    return await bookRepository.create({
+      title: data.judul,
+      author: data.penulis,
+      publisher: data.penerbit,
+      publicationYear: data.tahun_terbit,
+      stock: data.stok,
+      categoryId: data.categoryId,
+      coverImage: data.coverImage || null,
     });
   }
 
   async updateBook(id: string, data: any) {
     await this.getBookById(id);
-    return await prisma.book.update({
-      where: { id },
-      data: {
-        title: data.judul,
-        author: data.penulis,
-        publisher: data.penerbit,
-        publicationYear: data.tahun_terbit,
-        stock: data.stok,
-        categoryId: data.categoryId,
-      },
+    return await bookRepository.update(id, {
+      title: data.judul,
+      author: data.penulis,
+      publisher: data.penerbit,
+      publicationYear: data.tahun_terbit,
+      stock: data.stok,
+      categoryId: data.categoryId,
+      coverImage: data.coverImage,
     });
   }
 
   async deleteBook(id: string) {
     await this.getBookById(id);
-    return await prisma.book.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
+    return await bookRepository.softDelete(id);
   }
 }

@@ -1,5 +1,7 @@
-import prisma from "../prisma"; 
+import { MemberRepository } from "../repositories/member.repository";
 import { MemberStatus } from "@prisma/client"; 
+
+const memberRepository = new MemberRepository();
 
 export class MemberService {
   async getAllMembers(params: any) {
@@ -16,58 +18,45 @@ export class MemberService {
       whereClause.status = params.status.toUpperCase() as MemberStatus;
     }
 
-    const members = await prisma.member.findMany({
-      where: whereClause,
-    });
+    const members = await memberRepository.findMany({ where: whereClause });
 
     return { members, total: members.length };
   }
 
   async getMemberById(id: string) {
-    const member = await prisma.member.findFirst({
-      where: { id, deletedAt: null },
-    });
+    const member = await memberRepository.findById(id);
     if (!member) throw { statusCode: 404, message: "Member tidak ditemukan" };
     return member;
   }
 
   async createMember(data: any) {
-    const existing = await prisma.member.findFirst({
-        where: { email: data.email }
-    });
+    const existing = await memberRepository.findByEmail(data.email);
     if (existing) throw { statusCode: 400, message: "Email sudah terdaftar" };
 
-    return await prisma.member.create({
-      data: {
-        name: data.nama,
-        email: data.email,
-        phone: data.telepon,
-        address: data.alamat,
-        status: 'ACTIVE',
-      },
+    return await memberRepository.create({
+      name: data.nama,
+      email: data.email,
+      password: data.password || '',
+      phone: data.telepon || null,
+      address: data.alamat || null,
+      status: 'ACTIVE',
     });
   }
 
   async updateMember(id: string, data: any) {
     await this.getMemberById(id);
 
-    return await prisma.member.update({
-      where: { id },
-      data: {
-        name: data.nama,
-        email: data.email,
-        phone: data.telepon,
-        address: data.alamat,
-        status: data.status ? (data.status.toUpperCase() as MemberStatus) : undefined,
-      },
+    return await memberRepository.update(id, {
+      name: data.nama,
+      email: data.email,
+      phone: data.telepon || null,
+      address: data.alamat || null,
+      status: data.status ? (data.status.toUpperCase() as MemberStatus) : undefined,
     });
   }
 
   async deleteMember(id: string) {
     await this.getMemberById(id);
-    return await prisma.member.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
+    return await memberRepository.softDelete(id);
   }
 }

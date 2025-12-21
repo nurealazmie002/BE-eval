@@ -1,16 +1,25 @@
 model Member {
-  id          String       @id @default(uuid())
+  id          String         @id @default(uuid())
   name        String
-  email       String       @unique
-  phone       String
-  address     String
-  status      MemberStatus @default(ACTIVE)
+  email       String         @unique
+  password    String
+  phone       String?
+  address     String?
+  role        Role           @default(MEMBER)
+  status      MemberStatus   @default(ACTIVE)
 
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  borrowRecords BorrowRecord[]
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   deletedAt   DateTime?
 
   @@map("members")
+}
+
+enum Role {
+  MEMBER
+  ADMIN
 }
 
 enum MemberStatus {

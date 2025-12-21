@@ -5,6 +5,15 @@ interface SuccessResponseParams {
   statusCode?: number;
   message: string;
   data?: any;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  filters?: any;
   search_result?: {
     total: number;
     search?: string;
@@ -24,6 +33,8 @@ export const successResponse = ({
   statusCode = 200,
   message,
   data,
+  pagination,
+  filters,
   search_result,
 }: SuccessResponseParams) => {
   const response: any = {
@@ -33,6 +44,14 @@ export const successResponse = ({
 
   if (data !== undefined) {
     response.data = data;
+  }
+
+  if (pagination) {
+    response.pagination = pagination;
+  }
+
+  if (filters) {
+    response.filters = filters;
   }
 
   if (search_result) {

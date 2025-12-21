@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import path from 'path';
 import mainRouter from './routes'; 
 import { errorHandler } from './middlewares/errorHandler'; 
 import prisma from './prisma';
@@ -10,6 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json()); 
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 app.use('/api', mainRouter);
 

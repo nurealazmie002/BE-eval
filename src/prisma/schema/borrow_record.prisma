@@ -1,0 +1,22 @@
+model BorrowRecord {
+  id          String             @id @default(uuid())
+  memberId    String
+  member      Member             @relation(fields: [memberId], references: [id])
+  borrowDate  DateTime           @default(now())
+  dueDate     DateTime
+  returnDate  DateTime?
+  status      BorrowStatus       @default(BORROWED)
+  items       BorrowItem[]
+  
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  deletedAt   DateTime?
+
+  @@map("borrow_records")
+}
+
+enum BorrowStatus {
+  BORROWED
+  RETURNED
+  OVERDUE
+}

@@ -1,41 +1,32 @@
-import prisma from "../prisma"; 
+import { CategoryRepository } from "../repositories/category.repository";
+
+const categoryRepository = new CategoryRepository();
+
 export class CategoryService {
   async getAllCategories() {
-    return await prisma.category.findMany({
-      where: { deletedAt: null },
-    });
+    return await categoryRepository.findMany({ deletedAt: null });
   }
 
   async getCategoryById(id: string) {
-    const category = await prisma.category.findFirst({
-      where: { id, deletedAt: null },
-    });
+    const category = await categoryRepository.findById(id);
     if (!category) throw { statusCode: 404, message: "Kategori tidak ditemukan" };
     return category;
   }
 
   async createCategory(data: { name: string; description?: string }) {
-    return await prisma.category.create({
-      data: {
-        name: data.name,
-        description: data.description,
-      },
+    return await categoryRepository.create({
+      name: data.name,
+      description: data.description,
     });
   }
 
   async updateCategory(id: string, data: any) {
     await this.getCategoryById(id);
-    return await prisma.category.update({
-      where: { id },
-      data,
-    });
+    return await categoryRepository.update(id, data);
   }
 
   async deleteCategory(id: string) {
     await this.getCategoryById(id);
-    return await prisma.category.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
+    return await categoryRepository.softDelete(id);
   }
 }

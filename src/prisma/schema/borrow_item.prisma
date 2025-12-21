@@ -1,0 +1,13 @@
+model BorrowItem {
+  id              String       @id @default(uuid())
+  borrowRecordId  String
+  borrowRecord    BorrowRecord @relation(fields: [borrowRecordId], references: [id])
+  bookId          String
+  book            Book         @relation(fields: [bookId], references: [id])
+  quantity        Int          @default(1)
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@map("borrow_items")
+}
