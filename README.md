@@ -15,6 +15,23 @@ REST API untuk Sistem Manajemen Perpustakaan dengan JWT Authentication dan RBAC.
 - Prisma ORM 7.x
 - PostgreSQL
 
+## Arsitektur OOP
+
+Project menggunakan **Object-Oriented Programming** dengan pattern **Dependency Injection**:
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Controller    │ ←── │     Service     │ ←── │   Repository    │
+│  (public methods)    │     (private repo)     │    (private db)      │
+│  constructor(svc)│     │  constructor(repo)│     │   Prisma Client │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+```
+
+- **Repository Layer**: Akses database via Prisma
+- **Service Layer**: Business logic dengan Constructor DI
+- **Controller Layer**: Handle HTTP request dengan Constructor DI
+- **Access Modifiers**: `private readonly` untuk dependencies, `public` untuk methods
+
 ## Fitur
 
 - JWT Authentication
