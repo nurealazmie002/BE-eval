@@ -1,22 +1,24 @@
 import prisma from "../prisma.js";
 
 export class StatsService {
-  async getAdminStats() {
-    const totalAvailableBooks = await prisma.book.count({
+  private readonly db = prisma;
+
+  public async getAdminStats() {
+    const totalAvailableBooks = await this.db.book.count({
       where: {
         deletedAt: null,
         stock: { gt: 0 }
       }
     });
 
-    const activeBorrowings = await prisma.borrowRecord.count({
+    const activeBorrowings = await this.db.borrowRecord.count({
       where: {
         deletedAt: null,
         status: 'BORROWED'
       }
     });
 
-    const mostPopularBook = await prisma.borrowItem.groupBy({
+    const mostPopularBook = await this.db.borrowItem.groupBy({
       by: ['bookId'],
       _sum: {
         quantity: true
@@ -32,7 +34,7 @@ export class StatsService {
     let popularBookDetails = null;
     if (mostPopularBook.length > 0) {
       const bookId = mostPopularBook[0].bookId;
-      const book = await prisma.book.findFirst({
+      const book = await this.db.book.findFirst({
         where: { id: bookId },
         select: {
           id: true,
@@ -47,15 +49,15 @@ export class StatsService {
       };
     }
 
-    const totalBooks = await prisma.book.count({
+    const totalBooks = await this.db.book.count({
       where: { deletedAt: null }
     });
 
-    const totalMembers = await prisma.member.count({
+    const totalMembers = await this.db.member.count({
       where: { deletedAt: null }
     });
 
-    const totalBorrowRecords = await prisma.borrowRecord.count({
+    const totalBorrowRecords = await this.db.borrowRecord.count({
       where: { deletedAt: null }
     });
 

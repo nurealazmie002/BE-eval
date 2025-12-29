@@ -1,10 +1,14 @@
-import { MemberRepository } from "../repositories/member.repository";
-import { MemberStatus } from "../generated/client"; 
-
-const memberRepository = new MemberRepository();
+import { MemberRepository } from "../repositories/member.repository.js";
+import { MemberStatus } from "../generated/client.js"; 
 
 export class MemberService {
-  async getAllMembers(params: any) {
+  private readonly memberRepository: MemberRepository;
+
+  constructor(memberRepository: MemberRepository) {
+    this.memberRepository = memberRepository;
+  }
+
+  public async getAllMembers(params: any) {
     const whereClause: any = { deletedAt: null };
 
     if (params.search) {
@@ -18,22 +22,22 @@ export class MemberService {
       whereClause.status = params.status.toUpperCase() as MemberStatus;
     }
 
-    const members = await memberRepository.findMany({ where: whereClause });
+    const members = await this.memberRepository.findMany({ where: whereClause });
 
     return { members, total: members.length };
   }
 
-  async getMemberById(id: string) {
-    const member = await memberRepository.findById(id);
+  public async getMemberById(id: string) {
+    const member = await this.memberRepository.findById(id);
     if (!member) throw { statusCode: 404, message: "Member tidak ditemukan" };
     return member;
   }
 
-  async createMember(data: any) {
-    const existing = await memberRepository.findByEmail(data.email);
+  public async createMember(data: any) {
+    const existing = await this.memberRepository.findByEmail(data.email);
     if (existing) throw { statusCode: 400, message: "Email sudah terdaftar" };
 
-    return await memberRepository.create({
+    return await this.memberRepository.create({
       name: data.nama,
       email: data.email,
       password: data.password || '',
@@ -43,10 +47,10 @@ export class MemberService {
     });
   }
 
-  async updateMember(id: string, data: any) {
+  public async updateMember(id: string, data: any) {
     await this.getMemberById(id);
 
-    return await memberRepository.update(id, {
+    return await this.memberRepository.update(id, {
       name: data.nama,
       email: data.email,
       phone: data.telepon || null,
@@ -55,8 +59,8 @@ export class MemberService {
     });
   }
 
-  async deleteMember(id: string) {
+  public async deleteMember(id: string) {
     await this.getMemberById(id);
-    return await memberRepository.softDelete(id);
+    return await this.memberRepository.softDelete(id);
   }
 }

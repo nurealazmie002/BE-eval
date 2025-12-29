@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import bookRoutes from './book';
-import memberRoutes from './member';
-import categoryRoutes from './category';
-import borrowRoutes from './borrow';
-import authRoutes from './auth';
-import statsRoutes from './stats';
+import bookRoutes from './book.js';
+import memberRoutes from './member.js';
+import categoryRoutes from './category.js';
+import borrowRoutes from './borrow.js';
+import authRoutes from './auth.js';
+import statsRoutes from './stats.js';
 
 const router = Router();
 

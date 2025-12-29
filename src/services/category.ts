@@ -1,32 +1,36 @@
-import { CategoryRepository } from "../repositories/category.repository";
-
-const categoryRepository = new CategoryRepository();
+import { CategoryRepository } from "../repositories/category.repository.js";
 
 export class CategoryService {
-  async getAllCategories() {
-    return await categoryRepository.findMany({ deletedAt: null });
+  private readonly categoryRepository: CategoryRepository;
+
+  constructor(categoryRepository: CategoryRepository) {
+    this.categoryRepository = categoryRepository;
   }
 
-  async getCategoryById(id: string) {
-    const category = await categoryRepository.findById(id);
+  public async getAllCategories() {
+    return await this.categoryRepository.findMany({ deletedAt: null });
+  }
+
+  public async getCategoryById(id: string) {
+    const category = await this.categoryRepository.findById(id);
     if (!category) throw { statusCode: 404, message: "Kategori tidak ditemukan" };
     return category;
   }
 
-  async createCategory(data: { name: string; description?: string }) {
-    return await categoryRepository.create({
+  public async createCategory(data: { name: string; description?: string }) {
+    return await this.categoryRepository.create({
       name: data.name,
       description: data.description,
     });
   }
 
-  async updateCategory(id: string, data: any) {
+  public async updateCategory(id: string, data: any) {
     await this.getCategoryById(id);
-    return await categoryRepository.update(id, data);
+    return await this.categoryRepository.update(id, data);
   }
 
-  async deleteCategory(id: string) {
+  public async deleteCategory(id: string) {
     await this.getCategoryById(id);
-    return await categoryRepository.softDelete(id);
+    return await this.categoryRepository.softDelete(id);
   }
 }

@@ -1,11 +1,9 @@
-import { MemberRepository } from "../repositories/member.repository";
+import { MemberRepository } from "../repositories/member.repository.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const SALT_ROUNDS = 10;
-
-const memberRepository = new MemberRepository();
 
 interface RegisterData {
   name: string;
@@ -22,8 +20,14 @@ interface LoginData {
 }
 
 export class AuthService {
-  async register(data: RegisterData) {
-    const existing = await memberRepository.findByEmail(data.email);
+  private readonly memberRepository: MemberRepository;
+
+  constructor(memberRepository: MemberRepository) {
+    this.memberRepository = memberRepository;
+  }
+
+  public async register(data: RegisterData) {
+    const existing = await this.memberRepository.findByEmail(data.email);
 
     if (existing) {
       throw { statusCode: 400, message: 'Email sudah terdaftar' };
@@ -31,7 +35,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
-    const member = await memberRepository.create({
+    const member = await this.memberRepository.create({
       name: data.name,
       email: data.email,
       password: hashedPassword,
@@ -60,8 +64,8 @@ export class AuthService {
     };
   }
 
-  async login(data: LoginData) {
-    const member = await memberRepository.findFirst(
+  public async login(data: LoginData) {
+    const member = await this.memberRepository.findFirst(
       { email: data.email, deletedAt: null }
     );
 
@@ -97,8 +101,8 @@ export class AuthService {
     };
   }
 
-  async getProfile(userId: string) {
-    const member = await memberRepository.findById(userId);
+  public async getProfile(userId: string) {
+    const member = await this.memberRepository.findById(userId);
 
     if (!member) {
       throw { statusCode: 404, message: 'User tidak ditemukan' };

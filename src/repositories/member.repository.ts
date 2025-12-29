@@ -1,42 +1,44 @@
 import prisma from "../prisma.js";
 
 export class MemberRepository {
-  async findMany(options: {
+  private readonly db = prisma;
+
+  public async findMany(options: {
     where?: any;
     include?: any;
     skip?: number;
     take?: number;
     orderBy?: any;
   }) {
-    return await prisma.member.findMany(options);
+    return await this.db.member.findMany(options);
   }
 
-  async findFirst(where: any) {
-    return await prisma.member.findFirst({ where });
+  public async findFirst(where: any) {
+    return await this.db.member.findFirst({ where });
   }
 
-  async findById(id: string) {
-    return await prisma.member.findFirst({
+  public async findById(id: string) {
+    return await this.db.member.findFirst({
       where: { id, deletedAt: null }
     });
   }
 
-  async findByEmail(email: string) {
-    return await prisma.member.findFirst({
+  public async findByEmail(email: string) {
+    return await this.db.member.findFirst({
       where: { email }
     });
   }
 
-  async create(data: any) {
-    return await prisma.member.create({ data });
+  public async create(data: any) {
+    return await this.db.member.create({ data });
   }
 
-  async update(id: string, data: any) {
-    return await prisma.member.update({ where: { id }, data });
+  public async update(id: string, data: any) {
+    return await this.db.member.update({ where: { id }, data });
   }
 
-  async softDelete(id: string) {
-    return await prisma.member.update({
+  public async softDelete(id: string) {
+    return await this.db.member.update({
       where: { id },
       data: { deletedAt: new Date() }
     });

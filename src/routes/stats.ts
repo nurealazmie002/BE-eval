@@ -1,17 +1,16 @@
 import { Router } from 'express';
-import { StatsController } from '../controllers/stats';
-import { asyncHandler } from '../utils/async.handler';
-import { authenticate, adminOnly } from '../middlewares/auth';
+import { statsController } from '../controllers/stats.js';
+import { asyncHandler } from '../utils/async.handler.js';
+import { authenticate, adminOnly } from '../middlewares/auth.js';
 
 const router = Router();
-const statsController = new StatsController();
 
 /**
  * @swagger
  * /admin/stats:
  *   get:
  *     summary: Get admin statistics (Admin only)
- *     description: Retrieve library statistics including total books, active borrowings, and most popular book. Requires admin role.
+ *     description: Retrieve library statistics including total books, active borrowings, and most popular book.
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
@@ -26,24 +25,13 @@ const statsController = new StatsController();
  *                 success:
  *                   type: boolean
  *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Admin statistics retrieved successfully"
  *                 data:
  *                   $ref: '#/components/schemas/AdminStats'
  *       401:
  *         description: Unauthorized
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       403:
  *         description: Forbidden - Admin access required
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
-router.get('/stats', authenticate, adminOnly, asyncHandler(statsController.getAdminStats));
+router.get('/stats', authenticate, adminOnly, asyncHandler(statsController.getAdminStats.bind(statsController)));
 
 export default router;

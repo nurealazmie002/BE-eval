@@ -1,12 +1,11 @@
 import { Router } from 'express';
-import { AuthController } from '../controllers/auth';
-import { asyncHandler } from '../utils/async.handler';
-import { validate } from '../middlewares/validate';
-import { registerValidation, loginValidation } from '../validations/auth';
-import { authenticate } from '../middlewares/auth';
+import { authController } from '../controllers/auth.js';
+import { asyncHandler } from '../utils/async.handler.js';
+import { validate } from '../middlewares/validate.js';
+import { registerValidation, loginValidation } from '../validations/auth.js';
+import { authenticate } from '../middlewares/auth.js';
 
 const router = Router();
-const authController = new AuthController();
 
 /**
  * @swagger
@@ -48,27 +47,10 @@ const authController = new AuthController();
  *     responses:
  *       201:
  *         description: Registration successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Registrasi berhasil"
- *                 data:
- *                   $ref: '#/components/schemas/Member'
  *       400:
  *         description: Validation error or email already exists
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
-router.post('/register', registerValidation, validate, asyncHandler(authController.register));
+router.post('/register', registerValidation, validate, asyncHandler(authController.register.bind(authController)));
 
 /**
  * @swagger
@@ -96,33 +78,10 @@ router.post('/register', registerValidation, validate, asyncHandler(authControll
  *     responses:
  *       200:
  *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Login berhasil"
- *                 data:
- *                   type: object
- *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/Member'
- *                     token:
- *                       type: string
- *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  *       401:
  *         description: Invalid credentials
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
-router.post('/login', loginValidation, validate, asyncHandler(authController.login));
+router.post('/login', loginValidation, validate, asyncHandler(authController.login.bind(authController)));
 
 /**
  * @swagger
@@ -136,23 +95,9 @@ router.post('/login', loginValidation, validate, asyncHandler(authController.log
  *     responses:
  *       200:
  *         description: Profile retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/Member'
  *       401:
  *         description: Unauthorized - Invalid or missing token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
-router.get('/profile', authenticate, asyncHandler(authController.getProfile));
+router.get('/profile', authenticate, asyncHandler(authController.getProfile.bind(authController)));
 
 export default router;

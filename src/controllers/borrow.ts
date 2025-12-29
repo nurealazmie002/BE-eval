@@ -1,13 +1,24 @@
 import { Request, Response } from 'express';
-import { BorrowService } from '../services/borrow';
-import { successResponse } from '../utils/response.helper';
-import { AuthRequest } from '../middlewares/auth';
+import { BorrowService } from '../services/borrow.js';
+import { successResponse } from '../utils/response.helper.js';
+import { AuthRequest } from '../middlewares/auth.js';
+import { BorrowRepository, BorrowBookRepository } from '../repositories/borrow.repository.js';
+import { MemberRepository } from '../repositories/member.repository.js';
 
-const borrowService = new BorrowService();
+const borrowRepository = new BorrowRepository();
+const bookRepository = new BorrowBookRepository();
+const memberRepository = new MemberRepository();
+const borrowService = new BorrowService(borrowRepository, bookRepository, memberRepository);
 
 export class BorrowController {
-  async getAllBorrowRecords(req: Request, res: Response) {
-    const result = await borrowService.getAllBorrowRecords(req.query);
+  private readonly borrowService: BorrowService;
+
+  constructor(borrowService: BorrowService) {
+    this.borrowService = borrowService;
+  }
+
+  public async getAllBorrowRecords(req: Request, res: Response) {
+    const result = await this.borrowService.getAllBorrowRecords(req.query);
     return successResponse({ 
       res, 
       message: 'Daftar peminjaman', 
@@ -16,17 +27,17 @@ export class BorrowController {
     });
   }
 
-  async getBorrowRecordById(req: Request, res: Response) {
-    const borrowRecord = await borrowService.getBorrowRecordById(req.params.id);
+  public async getBorrowRecordById(req: Request, res: Response) {
+    const borrowRecord = await this.borrowService.getBorrowRecordById(req.params.id);
     return successResponse({ res, message: 'Detail peminjaman', data: borrowRecord });
   }
 
-  async borrowBooks(req: AuthRequest, res: Response) {
+  public async borrowBooks(req: AuthRequest, res: Response) {
     const data = {
       ...req.body,
       memberId: req.user?.id
     };
-    const newBorrowRecord = await borrowService.borrowBooks(data);
+    const newBorrowRecord = await this.borrowService.borrowBooks(data);
     return successResponse({ 
       res, 
       statusCode: 201, 
@@ -35,8 +46,8 @@ export class BorrowController {
     });
   }
 
-  async returnBooks(req: Request, res: Response) {
-    const returnedRecord = await borrowService.returnBooks(req.params.id);
+  public async returnBooks(req: Request, res: Response) {
+    const returnedRecord = await this.borrowService.returnBooks(req.params.id);
     return successResponse({ 
       res, 
       message: 'Buku berhasil dikembalikan. Stok buku telah ditambahkan kembali.', 
@@ -44,8 +55,8 @@ export class BorrowController {
     });
   }
 
-  async deleteBorrowRecord(req: Request, res: Response) {
-    const deletedRecord = await borrowService.deleteBorrowRecord(req.params.id);
+  public async deleteBorrowRecord(req: Request, res: Response) {
+    const deletedRecord = await this.borrowService.deleteBorrowRecord(req.params.id);
     return successResponse({ 
       res, 
       message: 'Data peminjaman berhasil dihapus (Soft Delete)', 
@@ -53,12 +64,12 @@ export class BorrowController {
     });
   }
 
-  async getMyBorrowings(req: AuthRequest, res: Response) {
+  public async getMyBorrowings(req: AuthRequest, res: Response) {
     const memberId = req.user?.id;
     if (!memberId) {
       return res.status(401).json({ success: false, message: 'User tidak terautentikasi' });
     }
-    const result = await borrowService.getMyBorrowings(memberId);
+    const result = await this.borrowService.getMyBorrowings(memberId);
     return successResponse({ 
       res, 
       message: 'Riwayat peminjaman saya', 
@@ -67,3 +78,5 @@ export class BorrowController {
     });
   }
 }
+
+export const borrowController = new BorrowController(borrowService);

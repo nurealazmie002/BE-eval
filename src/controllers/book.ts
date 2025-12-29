@@ -1,12 +1,20 @@
 import { Request, Response } from 'express';
-import { BookService } from '../services/book'; 
-import { successResponse } from '../utils/response.helper';
+import { BookService } from '../services/book.js'; 
+import { successResponse } from '../utils/response.helper.js';
+import { BookRepository } from '../repositories/book.repository.js';
 
-const bookService = new BookService();
+const bookRepository = new BookRepository();
+const bookService = new BookService(bookRepository);
 
 export class BookController {
-  async getAllBooks(req: Request, res: Response) {
-    const result = await bookService.getAllBooks(req.query);
+  private readonly bookService: BookService;
+
+  constructor(bookService: BookService) {
+    this.bookService = bookService;
+  }
+
+  public async getAllBooks(req: Request, res: Response) {
+    const result = await this.bookService.getAllBooks(req.query);
     return successResponse({ 
       res, 
       message: 'Daftar buku', 
@@ -15,28 +23,34 @@ export class BookController {
       filters: result.filters 
     });
   }
-  async getBookById(req: Request, res: Response) {
-    const book = await bookService.getBookById(req.params.id);
+
+  public async getBookById(req: Request, res: Response) {
+    const book = await this.bookService.getBookById(req.params.id);
     return successResponse({ res, message: 'Detail buku', data: book });
   }
-  async createBook(req: Request, res: Response) {
+
+  public async createBook(req: Request, res: Response) {
     const data = { ...req.body };
     if (req.file) {
       data.coverImage = `/uploads/${req.file.filename}`;
     }
-    const newBook = await bookService.createBook(data);
+    const newBook = await this.bookService.createBook(data);
     return successResponse({ res, statusCode: 201, message: 'Buku berhasil dibuat', data: newBook });
   }
-  async updateBook(req: Request, res: Response) {
+
+  public async updateBook(req: Request, res: Response) {
     const data = { ...req.body };
     if (req.file) {
       data.coverImage = `/uploads/${req.file.filename}`;
     }
-    const updatedBook = await bookService.updateBook(req.params.id, data);
+    const updatedBook = await this.bookService.updateBook(req.params.id, data);
     return successResponse({ res, message: 'Buku berhasil diupdate', data: updatedBook });
   }
-  async deleteBook(req: Request, res: Response) {
-    const deletedBook = await bookService.deleteBook(req.params.id);
+
+  public async deleteBook(req: Request, res: Response) {
+    const deletedBook = await this.bookService.deleteBook(req.params.id);
     return successResponse({ res, message: 'Buku berhasil dihapus (Soft Delete)', data: deletedBook });
   }
 }
+
+export const bookController = new BookController(bookService);

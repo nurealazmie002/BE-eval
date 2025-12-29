@@ -1,11 +1,10 @@
 import { Router } from 'express';
-import { BookController } from '../controllers/book';
-import { asyncHandler } from '../utils/async.handler'; 
-import { authenticate, adminOnly } from '../middlewares/auth';
-import { uploadCover } from '../middlewares/upload';
+import { bookController } from '../controllers/book.js';
+import { asyncHandler } from '../utils/async.handler.js'; 
+import { authenticate, adminOnly } from '../middlewares/auth.js';
+import { uploadCover } from '../middlewares/upload.js';
 
 const router = Router();
-const bookController = new BookController();
 
 /**
  * @swagger
@@ -103,7 +102,7 @@ const bookController = new BookController();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', authenticate, asyncHandler(bookController.getAllBooks));
+router.get('/', authenticate, asyncHandler(bookController.getAllBooks.bind(bookController)));
 
 /**
  * @swagger
@@ -142,7 +141,7 @@ router.get('/', authenticate, asyncHandler(bookController.getAllBooks));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', authenticate, asyncHandler(bookController.getBookById));
+router.get('/:id', authenticate, asyncHandler(bookController.getBookById.bind(bookController)));
 
 /**
  * @swagger
@@ -212,7 +211,7 @@ router.get('/:id', authenticate, asyncHandler(bookController.getBookById));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', authenticate, adminOnly, uploadCover.single('cover'), asyncHandler(bookController.createBook));
+router.post('/', authenticate, adminOnly, uploadCover.single('cover'), asyncHandler(bookController.createBook.bind(bookController)));
 
 /**
  * @swagger
@@ -277,7 +276,7 @@ router.post('/', authenticate, adminOnly, uploadCover.single('cover'), asyncHand
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', authenticate, adminOnly, uploadCover.single('cover'), asyncHandler(bookController.updateBook));
+router.put('/:id', authenticate, adminOnly, uploadCover.single('cover'), asyncHandler(bookController.updateBook.bind(bookController)));
 
 /**
  * @swagger
@@ -317,6 +316,6 @@ router.put('/:id', authenticate, adminOnly, uploadCover.single('cover'), asyncHa
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', authenticate, adminOnly, asyncHandler(bookController.deleteBook));
+router.delete('/:id', authenticate, adminOnly, asyncHandler(bookController.deleteBook.bind(bookController)));
 
 export default router;

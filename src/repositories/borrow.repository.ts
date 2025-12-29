@@ -1,57 +1,61 @@
 import prisma from "../prisma.js";
 
 export class BorrowRepository {
-  async findMany(options: {
+  private readonly db = prisma;
+
+  public async findMany(options: {
     where?: any;
     include?: any;
     orderBy?: any;
   }) {
-    return await prisma.borrowRecord.findMany(options);
+    return await this.db.borrowRecord.findMany(options);
   }
 
-  async findFirst(where: any, include?: any) {
-    return await prisma.borrowRecord.findFirst({ where, include });
+  public async findFirst(where: any, include?: any) {
+    return await this.db.borrowRecord.findFirst({ where, include });
   }
 
-  async findById(id: string, include?: any) {
-    return await prisma.borrowRecord.findFirst({
+  public async findById(id: string, include?: any) {
+    return await this.db.borrowRecord.findFirst({
       where: { id, deletedAt: null },
       include
     });
   }
 
-  async create(data: any, include?: any) {
-    return await prisma.borrowRecord.create({ data, include });
+  public async create(data: any, include?: any) {
+    return await this.db.borrowRecord.create({ data, include });
   }
 
-  async update(id: string, data: any, include?: any) {
-    return await prisma.borrowRecord.update({ where: { id }, data, include });
+  public async update(id: string, data: any, include?: any) {
+    return await this.db.borrowRecord.update({ where: { id }, data, include });
   }
 
-  async softDelete(id: string) {
-    return await prisma.borrowRecord.update({
+  public async softDelete(id: string) {
+    return await this.db.borrowRecord.update({
       where: { id },
       data: { deletedAt: new Date() }
     });
   }
 
-  async transaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
-    return await prisma.$transaction(fn);
+  public async transaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+    return await this.db.$transaction(fn);
   }
 }
 
-export class BookRepository {
-  async findMany(where: any) {
-    return await prisma.book.findMany({ where });
+export class BorrowBookRepository {
+  private readonly db = prisma;
+
+  public async findMany(where: any) {
+    return await this.db.book.findMany({ where });
   }
 
-  async findById(id: string) {
-    return await prisma.book.findFirst({
+  public async findById(id: string) {
+    return await this.db.book.findFirst({
       where: { id, deletedAt: null }
     });
   }
 
-  async updateStock(tx: any, bookId: string, operation: 'increment' | 'decrement', quantity: number) {
+  public async updateStock(tx: any, bookId: string, operation: 'increment' | 'decrement', quantity: number) {
     return await tx.book.update({
       where: { id: bookId },
       data: { stock: { [operation]: quantity } }

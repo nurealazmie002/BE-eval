@@ -1,5 +1,5 @@
-import { BorrowRepository, BookRepository } from "../repositories/borrow.repository";
-import { MemberRepository } from "../repositories/member.repository";
+import { BorrowRepository, BorrowBookRepository } from "../repositories/borrow.repository.js";
+import { MemberRepository } from "../repositories/member.repository.js";
 
 interface BorrowItemInput {
   bookId: string;
@@ -12,12 +12,22 @@ interface BorrowBooksInput {
   items: BorrowItemInput[];
 }
 
-const borrowRepository = new BorrowRepository();
-const bookRepository = new BookRepository();
-const memberRepository = new MemberRepository();
-
 export class BorrowService {
-  async getAllBorrowRecords(params: any) {
+  private readonly borrowRepository: BorrowRepository;
+  private readonly bookRepository: BorrowBookRepository;
+  private readonly memberRepository: MemberRepository;
+
+  constructor(
+    borrowRepository: BorrowRepository,
+    bookRepository: BorrowBookRepository,
+    memberRepository: MemberRepository
+  ) {
+    this.borrowRepository = borrowRepository;
+    this.bookRepository = bookRepository;
+    this.memberRepository = memberRepository;
+  }
+
+  public async getAllBorrowRecords(params: any) {
     const whereClause: any = {
       deletedAt: null,
     };
@@ -48,7 +58,7 @@ export class BorrowService {
       };
     }
 
-    const borrowRecords = await borrowRepository.findMany({
+    const borrowRecords = await this.borrowRepository.findMany({
       where: whereClause,
       include: {
         member: {
@@ -68,8 +78,8 @@ export class BorrowService {
     return { borrowRecords, total: borrowRecords.length, filters: params };
   }
 
-  async getBorrowRecordById(id: string) {
-    const borrowRecord = await borrowRepository.findById(id, {
+  public async getBorrowRecordById(id: string) {
+    const borrowRecord = await this.borrowRepository.findById(id, {
       member: {
         select: { id: true, name: true, email: true, phone: true, address: true }
       },
@@ -89,14 +99,14 @@ export class BorrowService {
     return borrowRecord;
   }
 
-  async borrowBooks(data: BorrowBooksInput) {
-    const member = await memberRepository.findById(data.memberId);
+  public async borrowBooks(data: BorrowBooksInput) {
+    const member = await this.memberRepository.findById(data.memberId);
     if (!member) {
       throw { statusCode: 404, message: 'Member tidak ditemukan' };
     }
 
     const bookIds = data.items.map(item => item.bookId);
-    const books = await bookRepository.findMany({ id: { in: bookIds }, deletedAt: null });
+    const books = await this.bookRepository.findMany({ id: { in: bookIds }, deletedAt: null });
 
     if (books.length !== bookIds.length) {
       throw { statusCode: 404, message: 'Satu atau lebih buku tidak ditemukan' };
@@ -113,7 +123,8 @@ export class BorrowService {
       }
     }
 
-    const result = await borrowRepository.transaction(async (tx) => {
+    const bookRepository = this.bookRepository;
+    const result = await this.borrowRepository.transaction(async (tx) => {
       const borrowRecord = await tx.borrowRecord.create({
         data: {
           memberId: data.memberId,
@@ -147,14 +158,15 @@ export class BorrowService {
     return result;
   }
 
-  async returnBooks(id: string) {
+  public async returnBooks(id: string) {
     const borrowRecord = await this.getBorrowRecordById(id);
 
     if (borrowRecord.status === 'RETURNED') {
       throw { statusCode: 400, message: 'Buku sudah dikembalikan sebelumnya' };
     }
 
-    const result = await borrowRepository.transaction(async (tx) => {
+    const bookRepository = this.bookRepository;
+    const result = await this.borrowRepository.transaction(async (tx) => {
       const updatedRecord = await tx.borrowRecord.update({
         where: { id },
         data: {
@@ -181,13 +193,13 @@ export class BorrowService {
     return result;
   }
 
-  async deleteBorrowRecord(id: string) {
+  public async deleteBorrowRecord(id: string) {
     await this.getBorrowRecordById(id);
-    return await borrowRepository.softDelete(id);
+    return await this.borrowRepository.softDelete(id);
   }
 
-  async getMyBorrowings(memberId: string) {
-    const borrowRecords = await borrowRepository.findMany({
+  public async getMyBorrowings(memberId: string) {
+    const borrowRecords = await this.borrowRepository.findMany({
       where: { memberId, deletedAt: null },
       include: {
         items: {

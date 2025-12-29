@@ -1,9 +1,13 @@
-import { BookRepository } from "../repositories/book.repository";
-
-const bookRepository = new BookRepository();
+import { BookRepository } from "../repositories/book.repository.js";
 
 export class BookService {
-  async getAllBooks(params: any) {
+  private readonly bookRepository: BookRepository;
+
+  constructor(bookRepository: BookRepository) {
+    this.bookRepository = bookRepository;
+  }
+
+  public async getAllBooks(params: any) {
     const whereClause: any = {
       deletedAt: null,
     };
@@ -46,9 +50,9 @@ export class BookService {
     const sortBy = allowedSortFields.includes(params.sortBy) ? params.sortBy : 'createdAt';
     const sortOrder = params.sortOrder === 'asc' ? 'asc' : 'desc';
 
-    const total = await bookRepository.count(whereClause);
+    const total = await this.bookRepository.count(whereClause);
 
-    const books = await bookRepository.findMany({
+    const books = await this.bookRepository.findMany({
       where: whereClause,
       include: { category: true },
       skip,
@@ -81,8 +85,8 @@ export class BookService {
     };
   }
 
-  async getBookById(id: string) {
-    const book = await bookRepository.findFirst(
+  public async getBookById(id: string) {
+    const book = await this.bookRepository.findFirst(
       { id, deletedAt: null },
       { category: true }
     );
@@ -90,10 +94,10 @@ export class BookService {
     return book;
   }
 
-  async createBook(data: any) {
+  public async createBook(data: any) {
     if (!data.categoryId) throw { statusCode: 400, message: "categoryId wajib diisi" };
 
-    return await bookRepository.create({
+    return await this.bookRepository.create({
       title: data.judul,
       author: data.penulis,
       publisher: data.penerbit,
@@ -104,9 +108,9 @@ export class BookService {
     });
   }
 
-  async updateBook(id: string, data: any) {
+  public async updateBook(id: string, data: any) {
     await this.getBookById(id);
-    return await bookRepository.update(id, {
+    return await this.bookRepository.update(id, {
       title: data.judul,
       author: data.penulis,
       publisher: data.penerbit,
@@ -117,8 +121,8 @@ export class BookService {
     });
   }
 
-  async deleteBook(id: string) {
+  public async deleteBook(id: string) {
     await this.getBookById(id);
-    return await bookRepository.softDelete(id);
+    return await this.bookRepository.softDelete(id);
   }
 }
