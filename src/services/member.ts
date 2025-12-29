@@ -1,5 +1,5 @@
 import { MemberRepository } from "../repositories/member.repository";
-import { MemberStatus } from "@prisma/client"; 
+import { MemberStatus } from "../generated/client"; 
 
 const memberRepository = new MemberRepository();
 
