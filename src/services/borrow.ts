@@ -30,6 +30,24 @@ export class BorrowService {
       whereClause.status = params.status;
     }
 
+    if (params.startDate || params.endDate) {
+      whereClause.borrowDate = {};
+      if (params.startDate) {
+        whereClause.borrowDate.gte = new Date(params.startDate);
+      }
+      if (params.endDate) {
+        const endDate = new Date(params.endDate);
+        endDate.setHours(23, 59, 59, 999);
+        whereClause.borrowDate.lte = endDate;
+      }
+    }
+
+    if (params.memberName) {
+      whereClause.member = {
+        name: { contains: params.memberName, mode: 'insensitive' }
+      };
+    }
+
     const borrowRecords = await borrowRepository.findMany({
       where: whereClause,
       include: {

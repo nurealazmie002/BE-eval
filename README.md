@@ -1,194 +1,275 @@
-# 📚 Perpustakaan API
+<p align="center">
+  <img src="https://img.icons8.com/color/96/000000/library.png" alt="Library Logo"/>
+</p>
 
-REST API untuk sistem manajemen perpustakaan dengan fitur autentikasi JWT, Role-Based Access Control (RBAC), dan arsitektur 3-layer (Repository - Service - Controller).
+<h1 align="center">📚 Perpustakaan API</h1>
+
+<p align="center">
+  <strong>REST API untuk Sistem Manajemen Perpustakaan Modern</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-v18+-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js"/>
+  <img src="https://img.shields.io/badge/Express-5.x-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express"/>
+  <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
+  <img src="https://img.shields.io/badge/Prisma-7.x-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/JWT-Auth-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="JWT"/>
+  <img src="https://img.shields.io/badge/RBAC-Enabled-green?style=flat-square" alt="RBAC"/>
+  <img src="https://img.shields.io/badge/3--Layer-Architecture-blue?style=flat-square" alt="3-Layer"/>
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"/>
+</p>
+
+---
+
+## 🌐 Live API
+
+| Environment | URL |
+|-------------|-----|
+| **Base URL** | `https://YOUR-APP.up.railway.app/api` |
+| **API Docs** | `https://YOUR-APP.up.railway.app/api-docs` |
+
+> ⚠️ Ganti `YOUR-APP` dengan subdomain Railway kamu setelah deploy
+
+---
 
 ## ✨ Fitur Utama
 
-- 🔐 **Autentikasi JWT** - Login, Register, Profile
-- 👥 **RBAC (Role-Based Access Control)** - Admin & Member roles
-- 📚 **Manajemen Buku** - CRUD lengkap dengan upload cover
-- 📂 **Manajemen Kategori** - CRUD lengkap
-- 👤 **Manajemen Member** - CRUD lengkap (Admin only)
-- 📖 **Peminjaman Buku** - Pinjam, Kembalikan, Riwayat
-- 🔍 **Search, Pagination & Sorting** - Filter data dengan mudah
-- 🗑️ **Soft Delete** - Data tidak hilang permanen
-- ✅ **Validasi Input** - Express Validator
-- 📁 **File Upload** - Upload cover buku
+<table>
+  <tr>
+    <td align="center">🔐</td>
+    <td><strong>JWT Authentication</strong><br/>Secure login dengan JSON Web Token</td>
+    <td align="center">👥</td>
+    <td><strong>Role-Based Access</strong><br/>Admin & Member permissions</td>
+  </tr>
+  <tr>
+    <td align="center">📚</td>
+    <td><strong>Manajemen Buku</strong><br/>CRUD lengkap + upload cover</td>
+    <td align="center">📂</td>
+    <td><strong>Manajemen Kategori</strong><br/>Organisasi buku by kategori</td>
+  </tr>
+  <tr>
+    <td align="center">📖</td>
+    <td><strong>Sistem Peminjaman</strong><br/>Pinjam, kembalikan, riwayat</td>
+    <td align="center">🔍</td>
+    <td><strong>Search & Filter</strong><br/>Pagination, sorting, search</td>
+  </tr>
+  <tr>
+    <td align="center">🗑️</td>
+    <td><strong>Soft Delete</strong><br/>Data aman tidak hilang</td>
+    <td align="center">✅</td>
+    <td><strong>Input Validation</strong><br/>Express Validator</td>
+  </tr>
+</table>
 
-## 🛠️ Tech Stack
+---
 
-| Technology | Description |
-|------------|-------------|
-| **Node.js** | JavaScript runtime |
-| **Express 5** | Web framework |
-| **TypeScript** | Type safety |
-| **Prisma ORM** | Database ORM |
-| **PostgreSQL** | Database |
-| **JWT** | Authentication |
-| **Multer** | File upload |
-| **Express Validator** | Input validation |
+## 🏗️ Arsitektur
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        CLIENT REQUEST                        │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      MIDDLEWARE LAYER                        │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐│
+│  │   Auth   │ │ Validate │ │  Upload  │ │  Error Handler   ││
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     CONTROLLER LAYER                         │
+│           Handle HTTP Request & Response                     │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      SERVICE LAYER                           │
+│              Business Logic & Validations                    │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    REPOSITORY LAYER                          │
+│               Database Access via Prisma                     │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                       POSTGRESQL                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
 
 ## 📁 Struktur Project
 
 ```
 src/
-├── app.ts                 # Express app setup
-├── prisma.ts              # Prisma client instance
-├── controllers/           # Handle request & response
+├── 📄 app.ts                 # Express app entry point
+├── 📄 prisma.ts              # Prisma client instance
+│
+├── 📂 controllers/           # Handle HTTP request/response
 │   ├── auth.ts
 │   ├── book.ts
 │   ├── borrow.ts
 │   ├── category.ts
 │   └── member.ts
-├── services/              # Business logic
+│
+├── 📂 services/              # Business logic layer
 │   ├── auth.ts
 │   ├── book.ts
 │   ├── borrow.ts
 │   ├── category.ts
 │   └── member.ts
-├── repositories/          # Database access layer
+│
+├── 📂 repositories/          # Database access layer
 │   ├── book.repository.ts
 │   ├── borrow.repository.ts
 │   ├── category.repository.ts
 │   └── member.repository.ts
-├── routes/                # API routes
-│   ├── index.ts
-│   ├── auth.ts
-│   ├── book.ts
-│   ├── borrow.ts
-│   ├── category.ts
-│   └── member.ts
-├── middlewares/           # Custom middleware
-│   ├── auth.ts            # JWT authentication
-│   ├── errorHandler.ts    # Global error handler
-│   ├── upload.ts          # File upload with Multer
-│   ├── validate.ts        # Validation middleware
-│   ├── requestId.ts       # Request ID generator
-│   └── requestTimer.ts    # Request timer
-├── validations/           # Input validation rules
-│   ├── auth.ts
-│   ├── book.ts
-│   ├── borrow.ts
-│   ├── category.ts
-│   └── member.ts
-├── utils/                 # Helper functions
-│   ├── async.handler.ts
-│   └── response.helper.ts
-├── prisma/                # Prisma schema files
-│   └── schema/
-│       ├── book.prisma
-│       ├── borrow_item.prisma
-│       ├── borrow_record.prisma
-│       ├── category.prisma
-│       └── member.prisma
-└── generated/             # Prisma generated client
+│
+├── 📂 routes/                # API route definitions
+├── 📂 middlewares/           # Custom middlewares
+├── 📂 validations/           # Input validation rules
+├── 📂 utils/                 # Helper functions
+├── 📂 prisma/                # Prisma schema files
+└── 📂 generated/             # Prisma generated client
 ```
 
-## 🚀 Cara Install
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js v18+
-- PostgreSQL
-- npm atau yarn
+
+- ![Node.js](https://img.shields.io/badge/-Node.js_v18+-339933?style=flat-square&logo=node.js&logoColor=white)
+- ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+- ![npm](https://img.shields.io/badge/-npm-CB3837?style=flat-square&logo=npm&logoColor=white)
 
 ### Installation
 
 ```bash
-# Clone repo
+# 1️⃣ Clone repository
 git clone <your-repo-url>
 cd BE-eval
 
-# Install dependencies
+# 2️⃣ Install dependencies
 npm install
 
-# Setup environment variables
+# 3️⃣ Setup environment
 cp .env.example .env
-# Edit .env dengan konfigurasi database Anda
+# Edit .env dengan konfigurasi Anda
 
-# Generate Prisma Client
+# 4️⃣ Generate Prisma Client
 npm run prisma:generate
 
-# Jalankan migrasi database
+# 5️⃣ Run database migration
 npm run prisma:migrate
 
-# Jalankan server development
+# 6️⃣ Start development server
 npm run dev
 ```
 
-Server akan jalan di `http://localhost:3000`
+> 🎉 Server berjalan di `http://localhost:3000`
+
+---
 
 ## ⚙️ Environment Variables
 
-Buat file `.env` di root project:
-
 ```env
-# Database
+# 🗄️ Database
 DATABASE_URL="postgresql://user:password@localhost:5432/perpustakaan"
 
-# JWT
-JWT_SECRET="your-super-secret-key"
+# 🔐 JWT Secret
+JWT_SECRET="your-super-secret-key-here"
 
-# Server
+# 🌐 Server
 PORT=3000
 ```
 
-## 📡 API Endpoints
+---
 
-### Auth
-| Method | Endpoint | Auth | Role | Keterangan |
-|--------|----------|------|------|------------|
-| POST | `/api/auth/register` | ❌ | - | Register user baru |
-| POST | `/api/auth/login` | ❌ | - | Login user |
-| GET | `/api/auth/profile` | ✅ | Any | Ambil profile user |
+## 📡 API Reference
 
-### Categories
-| Method | Endpoint | Auth | Role | Keterangan |
-|--------|----------|------|------|------------|
-| GET | `/api/categories` | ✅ | Any | Ambil semua kategori |
-| GET | `/api/categories/:id` | ✅ | Any | Ambil kategori by ID |
-| POST | `/api/categories` | ✅ | Admin | Tambah kategori baru |
-| PUT | `/api/categories/:id` | ✅ | Admin | Update kategori |
-| DELETE | `/api/categories/:id` | ✅ | Admin | Hapus kategori |
+### 🔐 Authentication
 
-### Books
-| Method | Endpoint | Auth | Role | Keterangan |
-|--------|----------|------|------|------------|
-| GET | `/api/books` | ✅ | Any | Ambil semua buku |
-| GET | `/api/books/:id` | ✅ | Any | Ambil buku by ID |
-| POST | `/api/books` | ✅ | Admin | Tambah buku baru |
-| PUT | `/api/books/:id` | ✅ | Admin | Update buku |
-| DELETE | `/api/books/:id` | ✅ | Admin | Hapus buku |
+| Method | Endpoint | Auth | Description |
+|:------:|----------|:----:|-------------|
+| `POST` | `/api/auth/register` | ❌ | Register user baru |
+| `POST` | `/api/auth/login` | ❌ | Login user |
+| `GET` | `/api/auth/profile` | ✅ | Get current user profile |
 
-**Query Parameters:**
-- `page` - Nomor halaman (default: 1)
-- `limit` - Jumlah per halaman (default: 10)
-- `search` - Cari berdasarkan judul/penulis
-- `sortBy` - Field untuk sorting (default: title)
-- `sortOrder` - asc/desc (default: asc)
+### 📂 Categories
 
-### Members (Admin Only)
-| Method | Endpoint | Auth | Role | Keterangan |
-|--------|----------|------|------|------------|
-| GET | `/api/members` | ✅ | Admin | Ambil semua member |
-| GET | `/api/members/:id` | ✅ | Admin | Ambil member by ID |
-| POST | `/api/members` | ✅ | Admin | Tambah member baru |
-| PUT | `/api/members/:id` | ✅ | Admin | Update member |
-| DELETE | `/api/members/:id` | ✅ | Admin | Hapus member |
+| Method | Endpoint | Auth | Role | Description |
+|:------:|----------|:----:|:----:|-------------|
+| `GET` | `/api/categories` | ✅ | Any | List semua kategori |
+| `GET` | `/api/categories/:id` | ✅ | Any | Detail kategori |
+| `POST` | `/api/categories` | ✅ | 👑 | Tambah kategori |
+| `PUT` | `/api/categories/:id` | ✅ | 👑 | Update kategori |
+| `DELETE` | `/api/categories/:id` | ✅ | 👑 | Hapus kategori |
 
-### Borrowing
-| Method | Endpoint | Auth | Role | Keterangan |
-|--------|----------|------|------|------------|
-| GET | `/api/borrows/my-borrowings` | ✅ | Any | Riwayat peminjaman saya |
-| GET | `/api/borrows` | ✅ | Admin | Semua peminjaman |
-| GET | `/api/borrows/:id` | ✅ | Any | Detail peminjaman |
-| POST | `/api/borrows` | ✅ | Any | Pinjam buku |
-| PUT | `/api/borrows/:id/return` | ✅ | Any | Kembalikan buku |
-| DELETE | `/api/borrows/:id` | ✅ | Admin | Hapus record peminjaman |
+### 📚 Books
 
-## 📝 Contoh Request
+| Method | Endpoint | Auth | Role | Description |
+|:------:|----------|:----:|:----:|-------------|
+| `GET` | `/api/books` | ✅ | Any | List semua buku |
+| `GET` | `/api/books/:id` | ✅ | Any | Detail buku |
+| `POST` | `/api/books` | ✅ | 👑 | Tambah buku |
+| `PUT` | `/api/books/:id` | ✅ | 👑 | Update buku |
+| `DELETE` | `/api/books/:id` | ✅ | 👑 | Hapus buku |
 
-### Register Admin
-```bash
+<details>
+<summary>📋 Query Parameters</summary>
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | number | 1 | Nomor halaman |
+| `limit` | number | 10 | Jumlah per halaman |
+| `search` | string | - | Cari judul/penulis |
+| `sortBy` | string | title | Field untuk sorting |
+| `sortOrder` | string | asc | asc atau desc |
+
+</details>
+
+### 👤 Members (Admin Only)
+
+| Method | Endpoint | Auth | Role | Description |
+|:------:|----------|:----:|:----:|-------------|
+| `GET` | `/api/members` | ✅ | 👑 | List semua member |
+| `GET` | `/api/members/:id` | ✅ | 👑 | Detail member |
+| `POST` | `/api/members` | ✅ | 👑 | Tambah member |
+| `PUT` | `/api/members/:id` | ✅ | 👑 | Update member |
+| `DELETE` | `/api/members/:id` | ✅ | 👑 | Hapus member |
+
+### 📖 Borrowing
+
+| Method | Endpoint | Auth | Role | Description |
+|:------:|----------|:----:|:----:|-------------|
+| `GET` | `/api/borrows/my-borrowings` | ✅ | Any | Riwayat peminjaman saya |
+| `GET` | `/api/borrows` | ✅ | 👑 | List semua peminjaman |
+| `GET` | `/api/borrows/:id` | ✅ | Any | Detail peminjaman |
+| `POST` | `/api/borrows` | ✅ | Any | Pinjam buku |
+| `PUT` | `/api/borrows/:id/return` | ✅ | Any | Kembalikan buku |
+| `DELETE` | `/api/borrows/:id` | ✅ | 👑 | Hapus record |
+
+> 👑 = Admin only | ✅ = Authenticated | ❌ = Public
+
+---
+
+## 📝 Example Requests
+
+<details>
+<summary><strong>🔐 Register Admin</strong></summary>
+
+```http
 POST /api/auth/register
 Content-Type: application/json
 
@@ -199,9 +280,12 @@ Content-Type: application/json
   "role": "ADMIN"
 }
 ```
+</details>
 
-### Login
-```bash
+<details>
+<summary><strong>🔑 Login</strong></summary>
+
+```http
 POST /api/auth/login
 Content-Type: application/json
 
@@ -217,7 +301,7 @@ Content-Type: application/json
   "success": true,
   "message": "Login berhasil",
   "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "token": "eyJhbGciOiJIUzI1NiIs...",
     "user": {
       "id": "uuid",
       "name": "Admin Perpustakaan",
@@ -227,9 +311,12 @@ Content-Type: application/json
   }
 }
 ```
+</details>
 
-### Tambah Buku (dengan Cover)
-```bash
+<details>
+<summary><strong>📚 Create Book (with Cover)</strong></summary>
+
+```http
 POST /api/books
 Authorization: Bearer <token>
 Content-Type: multipart/form-data
@@ -242,9 +329,12 @@ stok: 10
 categoryId: <category-uuid>
 cover: <file>
 ```
+</details>
 
-### Pinjam Buku
-```bash
+<details>
+<summary><strong>📖 Borrow Books</strong></summary>
+
+```http
 POST /api/borrows
 Authorization: Bearer <token>
 Content-Type: application/json
@@ -257,51 +347,64 @@ Content-Type: application/json
   ]
 }
 ```
+</details>
+
+---
 
 ## 🧪 Testing dengan Postman
 
-1. Import file `postman_collection.json` ke Postman
-2. Jalankan request **Register Admin** terlebih dahulu
-3. Jalankan request **Login** - token akan otomatis tersimpan
-4. Jalankan request lainnya sesuai kebutuhan
+1. **Import** file `postman_collection.json` ke Postman
+2. **Jalankan** request `Register Admin`
+3. **Jalankan** request `Login` → Token otomatis tersimpan
+4. **Test** endpoint lainnya! 🎉
 
-## 📜 Scripts
+---
 
-```bash
-# Development
-npm run dev          # Jalankan server dengan hot reload
+## 📜 Available Scripts
 
-# Database
-npm run prisma:generate   # Generate Prisma Client
-npm run prisma:migrate    # Jalankan migrasi
-npm run prisma:reset      # Reset database
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Compile TypeScript |
+| `npm start` | Start production server |
+| `npm run prisma:generate` | Generate Prisma Client |
+| `npm run prisma:migrate` | Run database migrations |
+| `npm run prisma:reset` | Reset database |
 
-# Production
-npm run build        # Compile TypeScript
-npm start            # Jalankan production
-```
+---
 
 ## 🔧 Troubleshooting
 
-**Port sudah digunakan?**
+<details>
+<summary><strong>❌ Port sudah digunakan</strong></summary>
+
 ```bash
 PORT=4000 npm run dev
 ```
+</details>
 
-**Database connection error?**
+<details>
+<summary><strong>❌ Database connection error</strong></summary>
+
 - Pastikan PostgreSQL sudah running
-- Cek konfigurasi DATABASE_URL di `.env`
+- Cek konfigurasi `DATABASE_URL` di `.env`
+</details>
 
-**Module not found?**
+<details>
+<summary><strong>❌ Module not found</strong></summary>
+
 ```bash
 rm -rf node_modules package-lock.json
 npm install
 ```
-
-## 👤 Author
-
-Dibuat untuk Final Project Backend Development
+</details>
 
 ---
 
-**Happy coding!** 🚀
+<p align="center">
+  <strong>Made with ❤️ for Backend Development Final Project</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Happy-Coding!-ff69b4?style=for-the-badge" alt="Happy Coding"/>
+</p>

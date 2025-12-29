@@ -214,6 +214,26 @@
           }
         },
         {
+          "name": "Get Books (Advanced Filter)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books?categories=&inStock=true&min_tahun=2020&max_tahun=2024",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"],
+              "query": [
+                { "key": "categories", "value": "", "description": "Comma-separated category IDs" },
+                { "key": "inStock", "value": "true", "description": "Filter by stock: true (has stock) or false (no stock)" },
+                { "key": "min_tahun", "value": "2020", "description": "Minimum publication year" },
+                { "key": "max_tahun", "value": "2024", "description": "Maximum publication year" }
+              ]
+            }
+          }
+        },
+        {
           "name": "Get Book by ID",
           "request": {
             "method": "GET",
@@ -415,12 +435,14 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/borrows?search=&status=",
+              "raw": "{{baseUrl}}/borrows?status=&startDate=&endDate=&memberName=",
               "host": ["{{baseUrl}}"],
               "path": ["borrows"],
               "query": [
-                { "key": "search", "value": "" },
-                { "key": "status", "value": "", "description": "Filter: BORROWED, RETURNED, OVERDUE" }
+                { "key": "status", "value": "", "description": "Filter: BORROWED, RETURNED, OVERDUE" },
+                { "key": "startDate", "value": "", "description": "Start date filter (YYYY-MM-DD)" },
+                { "key": "endDate", "value": "", "description": "End date filter (YYYY-MM-DD)" },
+                { "key": "memberName", "value": "", "description": "Search by member name" }
               ]
             }
           }
@@ -486,6 +508,25 @@
               "host": ["{{baseUrl}}"],
               "path": ["borrows", ":id"],
               "variable": [{ "key": "id", "value": "" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Stats",
+      "item": [
+        {
+          "name": "Get Admin Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "stats"]
             }
           }
         }

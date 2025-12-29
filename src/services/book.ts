@@ -21,6 +21,17 @@ export class BookService {
       };
     }
 
+    if (params.categories) {
+      const categoryIds = params.categories.split(',').map((id: string) => id.trim());
+      whereClause.categoryId = { in: categoryIds };
+    }
+
+    if (params.inStock === 'true') {
+      whereClause.stock = { gt: 0 };
+    } else if (params.inStock === 'false') {
+      whereClause.stock = { equals: 0 };
+    }
+
     if (params.min_tahun || params.max_tahun) {
       whereClause.publicationYear = {};
       if (params.min_tahun) whereClause.publicationYear.gte = Number(params.min_tahun);
@@ -60,6 +71,10 @@ export class BookService {
       filters: {
         search: params.search || null,
         kategori: params.kategori || null,
+        categories: params.categories || null,
+        inStock: params.inStock || null,
+        min_tahun: params.min_tahun || null,
+        max_tahun: params.max_tahun || null,
         sortBy,
         sortOrder,
       },
