@@ -3,10 +3,10 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
-import mainRouter from './routes'; 
-import { errorHandler } from './middlewares/errorHandler'; 
-import prisma from './prisma';
-import { setupSwagger } from './swagger';
+import mainRouter from './routes/index.js'; 
+import { errorHandler } from './middlewares/errorHandler.js'; 
+import prisma from './prisma.js';
+import { setupSwagger } from './swagger.js';
 
 dotenv.config(); 
 
